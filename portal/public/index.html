@@ -375,6 +375,10 @@ async function doUpdate() {
   btn.textContent = 'Загрузка…';
   try {
     const r = await fetch('/api/update', { method: 'POST', headers: { Authorization: 'Bearer ' + S.token } });
+    if (!r.ok && !r.headers.get('content-type')?.includes('json')) {
+      showToast('Перезапустите сервер: pm2 restart kavkaz-library', 'err');
+      return;
+    }
     const d = await r.json();
     if (d.ok) {
       showToast('Обновление получено', 'ok');
@@ -383,8 +387,8 @@ async function doUpdate() {
       showToast('Ошибка обновления', 'err');
       alert('Ошибка:\n\n' + d.output);
     }
-  } catch {
-    showToast('Ошибка сети', 'err');
+  } catch (e) {
+    showToast('Ошибка: ' + e.message, 'err');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Обновить';
