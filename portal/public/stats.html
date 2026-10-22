@@ -156,7 +156,7 @@ function fmtDateTime(ts) {
 }
 
 function renderStats(d) {
-  const { total, topSearches, zeroSearches, topOpens, daily, logins } = d;
+  const { total, topSearches, zeroSearches, topOpens, daily, logins = [] } = d;
 
   // Daily chart (last 14 days)
   const last14 = daily.slice(-14);
