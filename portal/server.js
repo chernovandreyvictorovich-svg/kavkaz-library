@@ -22,6 +22,7 @@ const DATA_DIR = path.join(__dirname, 'data');
 fs.mkdirSync(DATA_DIR, { recursive: true });
 const SEARCHES_LOG = path.join(DATA_DIR, 'searches.ndjson');
 const OPENS_LOG    = path.join(DATA_DIR, 'opens.ndjson');
+const LOGINS_LOG   = path.join(DATA_DIR, 'logins.ndjson');
 
 // Пропускаемые системные файлы
 const SKIP_FILES = new Set(['Thumbs.db', 'desktop.ini', '.DS_Store']);
@@ -258,12 +259,35 @@ app.post('/api/change-password', requireAuth, async (req, res) => {
 
 // ── API: вход ────────────────────────────────────────────────────────────────
 
+function parseUA(ua) {
+  if (!ua) return { browser: 'Неизвестно', os: 'Неизвестно' };
+  let os = 'Другое';
+  if (/Windows NT 10|Windows NT 11/.test(ua)) os = 'Windows 10/11';
+  else if (/Windows NT 6/.test(ua))           os = 'Windows 7/8';
+  else if (/Android/.test(ua))                os = 'Android';
+  else if (/iPhone|iPad/.test(ua))            os = 'iOS';
+  else if (/Mac OS X/.test(ua))               os = 'macOS';
+  else if (/Linux/.test(ua))                  os = 'Linux';
+
+  let browser = 'Другое';
+  if (/Edg\//.test(ua))         browser = 'Edge';
+  else if (/OPR\//.test(ua))    browser = 'Opera';
+  else if (/YaBrowser/.test(ua))browser = 'Яндекс';
+  else if (/Chrome\//.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//.test(ua))browser = 'Firefox';
+  else if (/Safari\//.test(ua)) browser = 'Safari';
+  return { browser, os };
+}
+
 app.post('/api/login', async (req, res) => {
   const cfg = loadConfig();
   if (!cfg.adminHash) return res.status(400).json({ error: 'Пароль не настроен' });
   const ok = await bcrypt.compare(req.body.password || '', cfg.adminHash);
   if (!ok) return res.status(401).json({ error: 'Неверный пароль' });
   const token = jwt.sign({ role: 'admin' }, getJwtSecret(), { expiresIn: '8h' });
+  const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || '';
+  const { browser, os } = parseUA(req.headers['user-agent']);
+  appendLog(LOGINS_LOG, { ip, browser, os, t: Math.floor(Date.now() / 1000) });
   res.json({ token });
 });
 
@@ -331,6 +355,7 @@ app.post('/api/log/open', (req, res) => {
 app.get('/api/stats', requireAuth, (req, res) => {
   const searches = readLog(SEARCHES_LOG);
   const opens    = readLog(OPENS_LOG);
+  const logins   = readLog(LOGINS_LOG).reverse().slice(0, 50);
 
   // Агрегация поисковых запросов
   const qAll = {}, qZero = {};
@@ -368,7 +393,7 @@ app.get('/api/stats', requireAuth, (req, res) => {
   res.json({
     total: { searches: searches.length, opens: opens.length,
       zeroRate: searches.length ? Math.round(searches.filter(s => s.n === 0).length / searches.length * 100) : 0 },
-    topSearches, zeroSearches, topOpens,
+    topSearches, zeroSearches, topOpens, logins,
     daily: Object.entries(daily).map(([date,v]) => ({ date, ...v }))
   });
 });

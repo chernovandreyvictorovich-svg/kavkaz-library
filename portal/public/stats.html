@@ -150,8 +150,13 @@ async function loadStats() {
   }
 }
 
+function fmtDateTime(ts) {
+  const d = new Date(ts * 1000);
+  return d.toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+
 function renderStats(d) {
-  const { total, topSearches, zeroSearches, topOpens, daily } = d;
+  const { total, topSearches, zeroSearches, topOpens, daily, logins } = d;
 
   // Daily chart (last 14 days)
   const last14 = daily.slice(-14);
@@ -284,6 +289,26 @@ function renderStats(d) {
       <div class="rank-list-full rank-list">
         <div class="rank-head">Топ-20 <small>открытий</small></div>
         ${openRows}
+      </div>
+    </div>
+
+    <!-- Входы в систему -->
+    <div class="section">
+      <div class="section-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Входы в систему
+      </div>
+      <div class="rank-list-full rank-list">
+        <div class="rank-head">Последние 50 входов <small>от новых к старым</small></div>
+        ${logins.length ? logins.map(l => `
+          <div class="rank-item">
+            <span class="rank-text">
+              ${esc(l.browser)} · ${esc(l.os)}
+              <small>${esc(l.ip)}</small>
+            </span>
+            <span class="rank-count" style="color:var(--text-2);font-weight:400">${fmtDateTime(l.t)}</span>
+          </div>`).join('')
+        : '<div class="empty-list">Входов пока не было</div>'}
       </div>
     </div>`;
 }
