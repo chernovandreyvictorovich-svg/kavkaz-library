@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SettingsFiltr xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <FiltrValue>
+    <ValueProperyGrid>
+      <Year>2012</Year>
+      <Month>Март</Month>
+      <Buss>Уголовное</Buss>
+      <Documents>True</Documents>
+      <PublicationView>True</PublicationView>
+      <Publication>True</Publication>
+      <PublicationColor>90EE90</PublicationColor>
+      <DocumWorkView>True</DocumWorkView>
+      <DocumWork>True</DocumWork>
+      <DocumWorkColor>808000</DocumWorkColor>
+      <DocumAnonymView>True</DocumAnonymView>
+      <DocumAnonym>True</DocumAnonym>
+      <DocumAnonymColor>FF8000</DocumAnonymColor>
+      <DocumShortAnnotView>True</DocumShortAnnotView>
+      <DocumShortAnnot>True</DocumShortAnnot>
+      <DocumShortAnnotColor>FF0000</DocumShortAnnotColor>
+      <SortingName>Дата вынесения</SortingName>
+      <SortingWay>По убыванию</SortingWay>
+    </ValueProperyGrid>
+  </FiltrValue>
+</SettingsFiltr>

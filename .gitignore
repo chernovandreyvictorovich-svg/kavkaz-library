@@ -1,0 +1,12 @@
+portal/node_modules/
+portal/config.json
+portal/data/
+~$*
+*.tmp
+Thumbs.db
+desktop.ini
+.DS_Store
+__kavkaz_tmp__/
+*.zip
+.netlify/
+.claude/

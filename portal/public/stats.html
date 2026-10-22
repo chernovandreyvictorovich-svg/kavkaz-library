@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Аналитика — Библиотека КАВКАЗ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{--sidebar-bg:#0D1520;--accent:#D97706;--accent-l:#FEF3C7;--surface:#F1F5F9;--card-bg:#FFFFFF;--border:#E2E8F0;--text:#1E293B;--text-2:#64748B;--text-inv:#F8FAFC;--shadow-sm:0 1px 3px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.06);--r:8px;--danger:#DC2626;--success:#16A34A;--topbar-h:56px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:var(--surface);min-height:100vh}
+
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:var(--sidebar-bg);display:flex;align-items:center;gap:16px;padding:0 24px;z-index:100}
+.topbar-brand{display:flex;align-items:center;gap:10px;color:var(--text-inv);font-weight:700;font-size:15px}
+.topbar-brand svg{color:var(--accent)}
+.topbar-title{color:#94A3B8;font-size:13px;font-weight:400}
+.topbar-sep{color:#334155;margin:0 4px}
+.tb-back{display:flex;align-items:center;gap:6px;color:#94A3B8;font-size:13px;text-decoration:none;margin-left:auto;transition:color .15s}
+.tb-back:hover{color:var(--accent)}
+
+.page{margin-top:var(--topbar-h);padding:28px 32px;max-width:1200px}
+
+/* Summary cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-accent,var(--accent))}
+.card-val{font-size:32px;font-weight:700;color:var(--text);line-height:1;margin-bottom:6px}
+.card-label{font-size:12.5px;color:var(--text-2);font-weight:500}
+.card-sub{font-size:11px;color:var(--text-2);margin-top:4px;opacity:.7}
+.card.danger{--card-accent:var(--danger)}
+.card.blue{--card-accent:#3B82F6}
+.card.green{--card-accent:var(--success)}
+
+/* Section */
+.section{margin-bottom:28px}
+.section-head{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-head svg{color:var(--accent)}
+.badge-gap{background:#FEE2E2;color:var(--danger);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+
+/* Chart */
+.chart-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r);padding:20px 20px 32px;margin-bottom:28px}
+.chart-legend{display:flex;gap:16px;margin-bottom:16px;font-size:12px;color:var(--text-2)}
+.legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px}
+.chart-bars{display:flex;align-items:flex-end;gap:3px;height:120px;border-bottom:1px solid var(--border);position:relative}
+.chart-day{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;flex:1;gap:2px;position:relative}
+.bar-s{width:45%;border-radius:2px 2px 0 0;min-height:2px;background:var(--accent)}
+.bar-o{width:45%;border-radius:2px 2px 0 0;min-height:2px;background:#3B82F6}
+.bars-inner{display:flex;gap:1px;align-items:flex-end;width:100%}
+.chart-x{display:flex;gap:3px;margin-top:6px;padding:0 0}
+.chart-x-item{flex:1;text-align:center;font-size:9px;color:var(--text-2);overflow:hidden}
+
+/* Top lists */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+
+.rank-list{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.rank-head{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;justify-content:space-between}
+.rank-head small{font-size:11px;font-weight:400;color:var(--text-2)}
+.rank-item{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid #F1F5F9;transition:background .1s}
+.rank-item:last-child{border-bottom:none}
+.rank-item:hover{background:var(--surface)}
+.rank-num{font-size:11px;color:var(--text-2);width:18px;flex-shrink:0;text-align:right}
+.rank-text{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-text small{display:block;font-size:11px;color:var(--text-2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-count{font-size:12px;font-weight:600;color:var(--accent);flex-shrink:0}
+.rank-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;min-width:40px}
+.rank-bar{height:100%;background:var(--accent);border-radius:2px}
+.rank-bar.zero{background:var(--danger)}
+.rank-bar.blue{background:#3B82F6}
+.empty-list{padding:24px 16px;text-align:center;color:var(--text-2);font-size:13px}
+
+/* Opens full-width */
+.rank-list-full{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+
+/* Auth wall */
+.auth-wall{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 56px);gap:16px;color:var(--text-2)}
+.auth-wall p{font-size:15px}
+.btn{height:36px;padding:0 16px;border-radius:var(--r);border:none;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn-primary{background:var(--accent);color:#fff}
+
+/* Loading */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--text-2);gap:8px;font-size:14px}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.updated{font-size:11px;color:#94A3B8;margin-left:auto}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Библиотека КАВКАЗ
+  </div>
+  <span class="topbar-sep">›</span>
+  <span class="topbar-title">Аналитика поиска</span>
+  <span class="updated" id="updated-at"></span>
+  <a href="/" class="tb-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    В библиотеку
+  </a>
+</div>
+
+<div class="page" id="page">
+  <div class="loading"><div class="spinner"></div> Загрузка статистики…</div>
+</div>
+
+<script>
+const token = localStorage.getItem('lib_token');
+
+function checkAuth() {
+  if (!token) return false;
+  try {
+    const p = JSON.parse(atob(token.split('.')[1]));
+    return p.exp * 1000 > Date.now();
+  } catch { return false; }
+}
+
+function showAuthWall() {
+  document.getElementById('page').innerHTML = `
+    <div class="auth-wall">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <p>Аналитика доступна только администратору</p>
+      <a href="/" class="btn btn-primary">Войти в библиотеку</a>
+    </div>`;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit' });
+}
+
+async function loadStats() {
+  if (!checkAuth()) { showAuthWall(); return; }
+
+  try {
+    const r = await fetch('/api/stats', { headers: { Authorization: 'Bearer ' + token } });
+    if (r.status === 401) { showAuthWall(); return; }
+    const d = await r.json();
+    renderStats(d);
+    document.getElementById('updated-at').textContent = 'Обновлено: ' + new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
+  } catch (e) {
+    document.getElementById('page').innerHTML = `<div class="loading" style="color:#DC2626">Ошибка загрузки: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderStats(d) {
+  const { total, topSearches, zeroSearches, topOpens, daily } = d;
+
+  // Daily chart (last 14 days)
+  const last14 = daily.slice(-14);
+  const maxVal = Math.max(1, ...last14.map(x => Math.max(x.s, x.o)));
+
+  const chartBars = last14.map(x => {
+    const hs = Math.round(x.s / maxVal * 100);
+    const ho = Math.round(x.o / maxVal * 100);
+    return `<div class="chart-day">
+      <div class="bars-inner">
+        <div class="bar-s" style="height:${hs}px" title="${x.s} поисков"></div>
+        <div class="bar-o" style="height:${ho}px" title="${x.o} открытий"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const chartX = last14.map(x =>
+    `<div class="chart-x-item">${fmtDate(x.date)}</div>`
+  ).join('');
+
+  // Top searches list
+  const maxS = topSearches.length ? topSearches[0].c : 1;
+  const searchRows = topSearches.length
+    ? topSearches.map((x,i) => `
+      <div class="rank-item">
+        <span class="rank-num">${i+1}</span>
+        <div class="rank-bar-wrap"><div class="rank-bar" style="width:${Math.round(x.c/maxS*100)}%"></div></div>
+        <span class="rank-text">${esc(x.q)}</span>
+        <span class="rank-count">${x.c}</span>
+      </div>`).join('')
+    : '<div class="empty-list">Поисков пока нет</div>';
+
+  // Zero results list
+  const maxZ = zeroSearches.length ? zeroSearches[0].c : 1;
+  const zeroRows = zeroSearches.length
+    ? zeroSearches.map((x,i) => `
+      <div class="rank-item">
+        <span class="rank-num">${i+1}</span>
+        <div class="rank-bar-wrap"><div class="rank-bar zero" style="width:${Math.round(x.c/maxZ*100)}%"></div></div>
+        <span class="rank-text">${esc(x.q)}</span>
+        <span class="rank-count" style="color:var(--danger)">${x.c}</span>
+      </div>`).join('')
+    : '<div class="empty-list">Пока нет запросов без результатов 🎉</div>';
+
+  // Top opens
+  const maxO = topOpens.length ? topOpens[0].c : 1;
+  const openRows = topOpens.length
+    ? topOpens.map((x,i) => `
+      <div class="rank-item">
+        <span class="rank-num">${i+1}</span>
+        <div class="rank-bar-wrap"><div class="rank-bar blue" style="width:${Math.round(x.c/maxO*100)}%"></div></div>
+        <span class="rank-text">
+          ${esc(x.name)}
+          ${x.section ? `<small>${esc(x.section)}</small>` : ''}
+        </span>
+        <span class="rank-count" style="color:#3B82F6">${x.c}</span>
+      </div>`).join('')
+    : '<div class="empty-list">Документов пока не открывали</div>';
+
+  document.getElementById('page').innerHTML = `
+    <!-- Сводка -->
+    <div class="cards">
+      <div class="card">
+        <div class="card-val">${total.searches.toLocaleString('ru')}</div>
+        <div class="card-label">Поисковых запросов</div>
+        <div class="card-sub">за всё время</div>
+      </div>
+      <div class="card danger">
+        <div class="card-val">${total.zeroRate}%</div>
+        <div class="card-label">Без результатов</div>
+        <div class="card-sub">пробелы в базе</div>
+      </div>
+      <div class="card blue">
+        <div class="card-val">${total.opens.toLocaleString('ru')}</div>
+        <div class="card-label">Открытий документов</div>
+        <div class="card-sub">за всё время</div>
+      </div>
+      <div class="card green">
+        <div class="card-val">${daily.filter(x=>x.s>0||x.o>0).length}</div>
+        <div class="card-label">Активных дней</div>
+        <div class="card-sub">за последние 30 дней</div>
+      </div>
+    </div>
+
+    <!-- График -->
+    <div class="chart-wrap">
+      <div class="section-head" style="margin-bottom:12px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Активность — последние 14 дней
+      </div>
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:var(--accent)"></span>Поиски</span>
+        <span><span class="legend-dot" style="background:#3B82F6"></span>Открытия</span>
+      </div>
+      <div class="chart-bars">${chartBars}</div>
+      <div class="chart-x">${chartX}</div>
+    </div>
+
+    <!-- Поиски / Пробелы -->
+    <div class="two-col">
+      <div>
+        <div class="section-head">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Популярные запросы
+        </div>
+        <div class="rank-list">
+          <div class="rank-head">Топ-20 <small>кол-во раз</small></div>
+          ${searchRows}
+        </div>
+      </div>
+      <div>
+        <div class="section-head">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Пробелы в базе
+          <span class="badge-gap">нет результатов</span>
+        </div>
+        <div class="rank-list">
+          <div class="rank-head">Искали, но не нашли <small>кол-во раз</small></div>
+          ${zeroRows}
+        </div>
+      </div>
+    </div>
+
+    <!-- Топ документов -->
+    <div class="section">
+      <div class="section-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Самые открываемые документы
+      </div>
+      <div class="rank-list-full rank-list">
+        <div class="rank-head">Топ-20 <small>открытий</small></div>
+        ${openRows}
+      </div>
+    </div>`;
+}
+
+// Запуск и авто-обновление каждые 2 минуты
+loadStats();
+setInterval(loadStats, 120000);
+</script>
+</body>
+</html>
