@@ -213,6 +213,10 @@ body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:
     <input id="search-input" type="text" placeholder="Поиск по документам… (Ctrl+K)" autocomplete="off">
   </div>
   <div class="tb-actions">
+    <button class="btn-admin" id="update-btn" style="display:none" onclick="doUpdate()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+      Обновить
+    </button>
     <a href="/stats.html" id="stats-btn" class="btn-admin" style="display:none;text-decoration:none">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Аналитика
@@ -349,16 +353,41 @@ function updateAdminUI() {
   const btn = document.getElementById('admin-btn');
   const lbl = document.getElementById('admin-label');
   const statsBtn = document.getElementById('stats-btn');
+  const updateBtn = document.getElementById('update-btn');
   if (S.isAdmin) {
     btn.classList.add('active');
     lbl.textContent = 'Выйти';
     btn.onclick = logout;
     statsBtn.style.display = 'flex';
+    updateBtn.style.display = 'flex';
   } else {
     btn.classList.remove('active');
     lbl.textContent = 'Войти';
     btn.onclick = openAdminModal;
     statsBtn.style.display = 'none';
+    updateBtn.style.display = 'none';
+  }
+}
+
+async function doUpdate() {
+  const btn = document.getElementById('update-btn');
+  btn.disabled = true;
+  btn.textContent = 'Загрузка…';
+  try {
+    const r = await fetch('/api/update', { method: 'POST', headers: { Authorization: 'Bearer ' + S.token } });
+    const d = await r.json();
+    if (d.ok) {
+      showToast('Обновление получено', 'ok');
+      alert('Результат обновления:\n\n' + d.output);
+    } else {
+      showToast('Ошибка обновления', 'err');
+      alert('Ошибка:\n\n' + d.output);
+    }
+  } catch {
+    showToast('Ошибка сети', 'err');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Обновить';
   }
 }
 

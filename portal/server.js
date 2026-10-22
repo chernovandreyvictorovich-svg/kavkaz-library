@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -369,6 +370,21 @@ app.get('/api/stats', requireAuth, (req, res) => {
       zeroRate: searches.length ? Math.round(searches.filter(s => s.n === 0).length / searches.length * 100) : 0 },
     topSearches, zeroSearches, topOpens,
     daily: Object.entries(daily).map(([date,v]) => ({ date, ...v }))
+  });
+});
+
+// ── API: получить обновления с GitHub ────────────────────────────────────────
+
+app.post('/api/update', requireAuth, (req, res) => {
+  const repoRoot = path.resolve(__dirname, '..');
+  exec('git pull', { cwd: repoRoot, timeout: 60000 }, (err, stdout, stderr) => {
+    const output = (stdout + stderr).trim();
+    if (err) return res.status(500).json({ ok: false, output });
+    // Перезапускаем PM2 через 1 секунду чтобы ответ успел уйти клиенту
+    setTimeout(() => {
+      exec('pm2 restart kavkaz-library', { timeout: 15000 }, () => {});
+    }, 1000);
+    res.json({ ok: true, output });
   });
 });
 
